@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Documentation complète des formules Sebtable : syntaxe, opérateurs, 30+ fonctions avec exemples pas à pas pour débutants.">
+  <meta property="og:title" content="Sebtable — Guide des formules">
+  <meta property="og:description" content="Tout sur les formules : {Champ}, IF, CONCATENATE, dates, regex, tableaux. Exemples copiables pour débutants.">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='630'%3E%3Crect width='1200' height='630' fill='%231a1d27'/%3E%3Ctext x='60' y='320' font-family='sans-serif' font-size='64' font-weight='800' fill='%236d7bff'%3ESebtable%3C/text%3E%3Ctext x='60' y='400' font-family='sans-serif' font-size='36' fill='%23eef0f7'%3EGuide des formules%3C/text%3E%3C/svg%3E">
+  <title>Sebtable — Guide des formules</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%236d7bff'/%3E%3Ctext x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='16' font-weight='800' fill='white'%3Ef%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a href="#main" class="skip-link">Aller au contenu</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">ƒ</span>
+        <span class="brand-text">Sebtable</span>
+        <span class="brand-sub">Guide des formules</span>
+      </div>
+      <nav class="header-nav" aria-label="Navigation">
+        <a href="#premier-pas">Débuter</a>
+        <a href="#reference">Référence</a>
+        <a href="#exemples">Exemples</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Champ « Formule » — moteur Rust, pas d'Excel à installer</p>
+      <h1>Écrire sa première formule en 2 minutes</h1>
+      <p class="lead">Une formule calcule une valeur à partir des autres champs de la <strong>même ligne</strong>. Elle se recalcule à chaque modification. Pas de code, juste <code>{Nom du champ}</code>, des guillemets et des fonctions comme <code>IF()</code>.</p>
+      <div class="hero-actions">
+        <a href="#premier-pas" class="btn primary">Commencer pas à pas</a>
+        <button type="button" class="btn" id="copy-first">Copier un exemple</button>
+      </div>
+      <div class="hero-demo" aria-label="Exemple">
+        <div class="demo-line"><span class="k">Formule</span><code>IF({Statut} = "Payé", "✓", "à relancer")</code><button class="copy" data-copy='IF({Statut} = "Payé", "✓", "à relancer")' aria-label="Copier">⧉</button></div>
+        <div class="demo-line"><span class="k">Résultat</span><span>si Statut vaut Payé → <b>✓</b> sinon <b>à relancer</b></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p class="toc-title">Sur cette page</p>
+      <ol>
+        <li><a href="#cest-quoi">1. C'est quoi une formule ?</a></li>
+        <li><a href="#premier-pas">2. Premiers pas</a></li>
+        <li><a href="#types">3. Types de données</a></li>
+        <li><a href="#operateurs">4. Opérateurs</a></li>
+        <li><a href="#references">5. Références {Champ}</a></li>
+        <li><a href="#logique">6. Fonctions — Logique</a></li>
+        <li><a href="#texte">7. Fonctions — Texte</a></li>
+        <li><a href="#maths">8. Fonctions — Maths</a></li>
+        <li><a href="#dates">9. Fonctions — Dates</a></li>
+        <li><a href="#tableaux">10. Fonctions — Tableaux</a></li>
+        <li><a href="#exemples">11. 12 exemples complets</a></li>
+        <li><a href="#erreurs">12. Erreurs & debug</a></li>
+        <li><a href="#bonnes-pratiques">13. Bonnes pratiques</a></li>
+        <li><a href="#reference">14. Référence rapide</a></li>
+      </ol>
+      <div class="toc-search">
+        <label for="search">Filtrer les fonctions</label>
+        <input id="search" type="search" placeholder="IF, LEFT, DATE…">
+      </div>
+    </nav>
+
+    <main id="main" class="content">
+
+      <section id="cest-quoi" class="card">
+        <h2>1. C'est quoi une formule ?</h2>
+        <p>Un <strong>champ de type Formule</strong> affiche une valeur calculée. Il n'est pas stocké : il est évalué en Rust à chaque lecture de la ligne. Le <em>contexte</em> est la ligne elle-même : <code>{Nom}</code> vaut la valeur de la colonne « Nom » sur cette ligne, ou vide si la cellule est vide.</p>
+        <ul>
+          <li><strong>Lecture seule</strong> : on ne tape pas dedans, elle se recalcule.</li>
+          <li><strong>Même ligne uniquement</strong> : pas d'accès direct à une autre ligne (utilise un champ <em>Lien/Lookup/Rollup</em> puis une formule dessus).</li>
+          <li><strong>Sans danger</strong> : pas de <code>eval</code> JavaScript, pas d'accès réseau.</li>
+        </ul>
+        <div class="callout">
+          <strong>Astuce :</strong> renomme tes colonnes sans espaces accentués pour taper plus vite, mais les accolades gèrent tout : <code>{Prénom}</code>, <code>{Date naissance}</code>, <code>{Montant TTC}</code> sont valides.
+        </div>
+      </section>
+
+      <section id="premier-pas" class="card">
+        <h2>2. Premiers pas — ta première formule</h2>
+        <ol class="steps">
+          <li><strong>Crée un champ Formule</strong> : sidebar → <code>+ Champ</code> → type <em>Formule</em>.</li>
+          <li><strong>Tape une expression</strong> : commence par <code>=</code> est optionnel, écris directement <code>{Nom}</code>.</li>
+          <li><strong>Valide</strong> : la colonne affiche le résultat pour chaque ligne.</li>
+        </ol>
+
+        <h3>Anatomie d'une formule</h3>
+<pre><code>IF( {Montant} &gt; 100 , "Gros" , "Petit" )
+│   │            │           │
+│   └─ champ ────┴─ test ───┴─ deux résultats possibles
+└─ fonction</code></pre>
+
+        <h3>3 mini-exercices (copie-colle)</h3>
+        <div class="example-grid">
+          <article class="example">
+            <h4>Saluer</h4>
+            <p>Champs : <code>{Prénom}</code> (Texte)</p>
+            <div class="code-row"><code>CONCATENATE("Bonjour ", {Prénom}, " !")</code><button class="copy" data-copy='CONCATENATE("Bonjour ", {Prénom}, " !")' aria-label="Copier">⧉</button></div>
+            <p class="result">« Alice » → <code>Bonjour Alice !</code></p>
+          </article>
+          <article class="example">
+            <h4>TVA 20 %</h4>
+            <p>Champs : <code>{Prix HT}</code> (Nombre)</p>
+            <div class="code-row"><code>{Prix HT} * 1.20</code><button class="copy" data-copy="{Prix HT} * 1.20" aria-label="Copier">⧉</button></div>
+            <p class="result"><code>100</code> → <code>120</code></p>
+          </article>
+          <article class="example">
+            <h4>Payé ou non ?</h4>
+            <p>Champs : <code>{Statut}</code> (Sélection)</p>
+            <div class="code-row"><code>IF({Statut} = "Payé", "✓", "→ relance")</code><button class="copy" data-copy='IF({Statut} = "Payé", "✓", "→ relance")' aria-label="Copier">⧉</button></div>
+            <p class="result"><code>"Payé"</code> → <code>✓</code></p>
+          </article>
+        </div>
+        <p class="hint">Guillemets : <code>"texte"</code> avec doubles quotes. Accolades : <code>{Nom du champ}</code> exactement comme le nom affiché.</p>
+      </section>
+
+      <section id="types" class="card">
+        <h2>3. Types de données</h2>
+        <table>
+          <thead><tr><th>Type</th><th>Exemple</th><th>Remarques</th></tr></thead>
+          <tbody>
+            <tr><td><code>Nombre</code></td><td><code>42</code>, <code>3.14</code></td><td>Entier ou décimal. <code>42</code> s'affiche « 42 », pas « 42.0 ».</td></tr>
+            <tr><td><code>Texte</code></td><td><code>"hello"</code></td><td>Toujours entre <code>"</code>. <code>'hello'</code> marche aussi.</td></tr>
+            <tr><td><code>Booléen</code></td><td><code>true</code>, <code>false</code></td><td>Utilisé par <code>IF</code>, <code>AND</code>, etc.</td></tr>
+            <tr><td><code>Vide</code> (BLANK)</td><td><code>BLANK</code> / cellule vide</td><td>Vaut <code>null</code> côté moteur. Testé avec <code>=</code>.</td></tr>
+            <tr><td><code>Date</code></td><td><code>"2024-03-14"</code></td><td>Chaîne <code>YYYY-MM-DD</code> (ou avec heure). Voir § Dates.</td></tr>
+            <tr><td><code>Tableau</code></td><td><code>["a","b"]</code></td><td>Vient d'un champ Lien/Lookup. Géré par <code>ARRAYJOIN</code>…</td></tr>
+          </tbody>
+        </table>
+        <h3>Conversions automatiques</h3>
+        <ul>
+          <li>Nombre attendu mais texte reçu : <code>"  12.5 "</code> → <code>12.5</code>, texte non numérique → <code>0</code>.</li>
+          <li>Texte attendu mais nombre reçu : <code>42</code> → <code>"42"</code>.</li>
+          <li>Booléen : <code>0</code>, <code>""</code>, <code>"false"</code>, <code>null</code>, tableau vide → <code>false</code>, le reste → <code>true</code>.</li>
+        </ul>
+      </section>
+
+      <section id="operateurs" class="card">
+        <h2>4. Opérateurs</h2>
+        <table>
+          <thead><tr><th>Opérateur</th><th>Rôle</th><th>Exemple</th><th>Résultat</th></tr></thead>
+          <tbody>
+            <tr><td><code>+</code></td><td>Addition <em>ou</em> concat si texte</td><td><code>1 + 2</code> / <code>"a" + "b"</code></td><td><code>3</code> / <code>"ab"</code></td></tr>
+            <tr><td><code>-</code> <code>*</code> <code>/</code> <code>%</code></td><td>Maths</td><td><code>10 % 3</code></td><td><code>1</code></td></tr>
+            <tr><td><code>&amp;</code></td><td>Concaténation explicite</td><td><code>"a" &amp; "b"</code></td><td><code>"ab"</code></td></tr>
+            <tr><td><code>=</code> <code>!=</code></td><td>Égal / différent</td><td><code>{Statut} = "Payé"</code></td><td><code>true/false</code></td></tr>
+            <tr><td><code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code></td><td>Comparaison</td><td><code>{Age} &gt;= 18</code></td><td><code>true/false</code></td></tr>
+            <tr><td><code>-</code> (unaire) <code>NOT</code></td><td>Négation</td><td><code>-{Montant}</code> / <code>NOT({Actif})</code></td><td></td></tr>
+          </tbody>
+        </table>
+        <p><strong>Priorité</strong> : parenthèses <code>( )</code> d'abord, puis <code>* / %</code>, puis <code>+ - &amp;</code>, puis comparaisons. En doute, mets des parenthèses.</p>
+<pre><code>// Moyenne : parenthèses obligatoires
+({Note1} + {Note2} + {Note3}) / 3
+
+// Sans parenthèses : faux !
+{Note1} + {Note2} + {Note3} / 3  // divise seulement Note3</code></pre>
+        <div class="callout warn"><strong>Piège <code>+</code> :</strong> si l'un des deux côtés n'est pas un nombre, <code>+</code> concatène. Écris <code>1 + 2</code> → <code>3</code> mais <code>"1" + 2</code> → <code>"12"</code>. Pour forcer l'addition, assure-toi que les deux sont des nombres.</div>
+      </section>
+
+      <section id="references" class="card">
+        <h2>5. Références <code>{Champ}</code></h2>
+        <ul>
+          <li>Tape <code>{</code> → l'éditeur propose les noms. Clique pour insérer.</li>
+          <li>Nom exact : <code>{Prénom}</code> ≠ <code>{prenom}</code> mais le moteur est tolérant à la casse pour les fonctions, pas pour les noms.</li>
+          <li>Champ inexistant → vaut <em>vide</em> (pas d'erreur).</li>
+          <li>Champ vide → <code>""</code> ou <code>null</code> selon le type. Teste avec <code>IF({Mail} = "", "manquant", {Mail})</code>.</li>
+        </ul>
+<pre><code>// Valeur par défaut si vide
+IF({Surnom} = "", {Prénom}, {Surnom})
+
+// Sécuriser un nombre vide → 0
+IF({Quantité} = "", 0, {Quantité}) * {Prix}</code></pre>
+      </section>
+
+      <!-- Fonctions Logique -->
+      <section id="logique" class="card func-group" data-group="logique">
+        <h2>6. Fonctions — Logique</h2>
+
+        <article class="func" data-name="IF">
+          <h3><code>IF(condition, valeur_si_vrai, valeur_si_faux)</code></h3>
+          <p>La plus utilisée. Si <code>condition</code> est vraie, renvoie le 2ᵉ argument, sinon le 3ᵉ.</p>
+          <div class="code-row"><code>IF({Montant} &gt; 100, "Gros", "Petit")</code><button class="copy" data-copy='IF({Montant} > 100, "Gros", "Petit")' aria-label="Copier">⧉</button></div>
+          <ul>
+            <li><code>IF({Age} &gt;= 18, "Majeur", "Mineur")</code></li>
+            <li><code>IF({Statut} = "Payé", "✓", IF({Statut} = "En retard", "⚠", "…"))</code> — IF imbriqués.</li>
+            <li><code>IF({Remise} &gt; 0, {Prix} * (1 - {Remise}/100), {Prix})</code></li>
+          </ul>
+        </article>
+
+        <article class="func" data-name="SWITCH">
+          <h3><code>SWITCH(valeur, cas1, résultat1, cas2, résultat2, …, défaut)</code></h3>
+          <p>Plus lisible que des IF en cascade quand on teste une même valeur.</p>
+          <div class="code-row"><code>SWITCH({Statut}, "Payé", "✓", "En attente", "…", "Brouillon", "⚠", "Inconnu")</code><button class="copy" data-copy='SWITCH({Statut}, "Payé", "✓", "En attente", "…", "Brouillon", "⚠", "Inconnu")' aria-label="Copier">⧉</button></div>
+          <p class="hint">Dernier argument = défaut seulement si le nombre total d'arguments est impair. Sans défaut et aucun cas ne matche → vide.</p>
+        </article>
+
+        <article class="func" data-name="AND OR NOT">
+          <h3><code>AND(...)</code> <code>OR(...)</code> <code>NOT(valeur)</code></h3>
+          <div class="code-row"><code>IF(AND({Age} &gt;= 18, {Pays} = "FR"), "OK", "Non")</code><button class="copy" data-copy='IF(AND({Age} >= 18, {Pays} = "FR"), "OK", "Non")' aria-label="Copier">⧉</button></div>
+          <ul>
+            <li><code>AND({Actif}, {Stock} &gt; 0)</code> → vrai seulement si les deux vrais.</li>
+            <li><code>OR({Statut} = "Payé", {Statut} = "Offert")</code></li>
+            <li><code>NOT({Archivé})</code> — inverse.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section id="texte" class="card func-group" data-group="texte">
+        <h2>7. Fonctions — Texte</h2>
+
+        <article class="func" data-name="CONCATENATE">
+          <h3><code>CONCATENATE(texte1, texte2, …)</code> — alias <code>&amp;</code></h3>
+          <div class="code-row"><code>CONCATENATE({Prénom}, " ", {Nom})</code><button class="copy" data-copy='CONCATENATE({Prénom}, " ", {Nom})' aria-label="Copier">⧉</button></div>
+          <p>Équivalent : <code>{Prénom} &amp; " " &amp; {Nom}</code>. Ignore les valeurs vides.</p>
+        </article>
+
+        <article class="func" data-name="LEN">
+          <h3><code>LEN(texte)</code></h3>
+          <p>Nombre de caractères (compte les émojis comme 1).</p>
+          <div class="code-row"><code>LEN("hello") → 5</code><button class="copy" data-copy='LEN("hello")' aria-label="Copier">⧉</button></div>
+          <p><code>LEN({Commentaire}) &gt; 200</code> → repère les longs textes.</p>
+        </article>
+
+        <article class="func" data-name="LOWER UPPER TRIM">
+          <h3><code>LOWER(texte)</code> <code>UPPER(texte)</code> <code>TRIM(texte)</code></h3>
+          <div class="code-row"><code>UPPER("alice") → "ALICE"</code><button class="copy" data-copy='UPPER("alice")' aria-label="Copier">⧉</button></div>
+          <p><code>TRIM("  hello  ") → "hello"</code> — supprime espaces début/fin.</p>
+        </article>
+
+        <article class="func" data-name="LEFT RIGHT MID">
+          <h3><code>LEFT(texte, n)</code> <code>RIGHT(texte, n)</code> <code>MID(texte, départ, longueur)</code></h3>
+          <ul>
+            <li><code>LEFT("hello", 2) → "he"</code></li>
+            <li><code>RIGHT("hello", 2) → "lo"</code></li>
+            <li><code>MID("hello", 2, 3) → "ell"</code> — départ à 1.</li>
+            <li><code>MID("2024-03-14", 1, 4) → "2024"</code> extrait l'année.</li>
+          </ul>
+          <div class="code-row"><code>LEFT({Réf}, 3) &amp; "-" &amp; RIGHT({Réf}, 4)</code><button class="copy" data-copy='LEFT({Réf}, 3) & "-" & RIGHT({Réf}, 4)' aria-label="Copier">⧉</button></div>
+        </article>
+
+        <article class="func" data-name="REGEX_MATCH REGEX_EXTRACT">
+          <h3><code>REGEX_MATCH(texte, motif)</code> <code>REGEX_EXTRACT(texte, motif)</code></h3>
+          <p>Regex linéaire, limite 1 Mo. Motif invalide → <code>#ERREUR</code>.</p>
+          <div class="code-row"><code>REGEX_MATCH("abc123", "[0-9]+") → true</code><button class="copy" data-copy='REGEX_MATCH("abc123", "[0-9]+")' aria-label="Copier">⧉</button></div>
+          <ul>
+            <li><code>REGEX_MATCH({Mail}, "^[^\s@]+@[^\s@]+\\.[^\s@]+$")</code> → email valide ?</li>
+            <li><code>REGEX_EXTRACT("REF-2024-042", "([0-9]+)") → "2024"</code> — capture groupe 1, sinon groupe 0.</li>
+            <li><code>REGEX_EXTRACT({Téléphone}, "0([0-9 ]+)")</code></li>
+          </ul>
+          <p class="hint">Échappe les guillemets : <code>"[0-9]+"</code> suffit, pas besoin de double slash en dehors du JSON.</p>
+        </article>
+      </section>
+
+      <section id="maths" class="card func-group" data-group="maths">
+        <h2>8. Fonctions — Maths</h2>
+
+        <article class="func" data-name="SUM AVERAGE MIN MAX">
+          <h3><code>SUM(...)</code> <code>AVERAGE(...)</code> <code>MIN(...)</code> <code>MAX(...)</code></h3>
+          <p>Acceptent nombres, tableaux et mélanges. Les vides sont ignorés. <code>AVERAGE()</code> vide → vide.</p>
+          <div class="code-row"><code>SUM(1, 2, 3) → 6</code><button class="copy" data-copy='SUM(1, 2, 3)' aria-label="Copier">⧉</button></div>
+          <ul>
+            <li><code>SUM({Note1}, {Note2}, {Note3})</code></li>
+            <li><code>SUM({Lien Montants})</code> — somme d'un champ lié (tableau).</li>
+            <li><code>AVERAGE({Q1}, {Q2}, {Q3}, {Q4})</code></li>
+            <li><code>MIN({Stock A}, {Stock B})</code></li>
+          </ul>
+        </article>
+
+        <article class="func" data-name="ROUND ABS MOD">
+          <h3><code>ROUND(nombre, décimales)</code> <code>ABS(nombre)</code> <code>MOD(a, b)</code></h3>
+          <ul>
+            <li><code>ROUND(2.567, 2) → 2.57</code> ; <code>ROUND(1234, -2) → 1200</code></li>
+            <li><code>ABS(-5) → 5</code></li>
+            <li><code>MOD(10, 3) → 1</code> ; <code>10 % 3</code> identique ; division par 0 → vide.</li>
+          </ul>
+          <div class="code-row"><code>ROUND({Prix} * 1.20, 2)</code><button class="copy" data-copy='ROUND({Prix} * 1.20, 2)' aria-label="Copier">⧉</button></div>
+        </article>
+
+        <div class="callout">
+          <strong>Calcul en chaîne :</strong> <code>({Prix} - {Remise}) * {Quantité} * 1.20</code> — mets des parenthèses, le moteur respecte la priorité <code>* /</code> avant <code>+ -</code>.
+        </div>
+      </section>
+
+      <section id="dates" class="card func-group" data-group="dates">
+        <h2>9. Fonctions — Dates</h2>
+        <p>Les dates sont des chaînes <code>YYYY-MM-DD</code> ou <code>YYYY-MM-DD HH:MM:SS</code>. Le moteur comprend aussi <code>2024-03-14T10:30:00</code> et les timestamps secondes.</p>
+
+        <article class="func" data-name="DATETIME_DIFF">
+          <h3><code>DATETIME_DIFF(date1, date2, unité)</code></h3>
+          <p>Différence <code>date1 - date2</code> en <code>seconds | minutes | hours | days | weeks | months | years</code> (singulier ou pluriel). Mois = 30.44 j, année = 365.25 j.</p>
+          <div class="code-row"><code>DATETIME_DIFF('2024-01-10', '2024-01-01', 'days') → 9</code><button class="copy" data-copy="DATETIME_DIFF('2024-01-10', '2024-01-01', 'days')" aria-label="Copier">⧉</button></div>
+          <ul>
+            <li><code>DATETIME_DIFF({Échéance}, TODAY(), 'days')</code> → jours restants (négatif si en retard).</li>
+            <li><code>DATETIME_DIFF({Fin}, {Début}, 'hours')</code></li>
+          </ul>
+        </article>
+
+        <article class="func" data-name="DATETIME_FORMAT">
+          <h3><code>DATETIME_FORMAT(date, format)</code></h3>
+          <p>Formate avec les codes <a href="https://docs.rs/chrono/latest/chrono/format/strftime/index.html" target="_blank" rel="noopener">chrono strftime</a>. Défaut <code>%Y-%m-%d</code>. Format invalide (<code>%</code> seul) → <code>""</code>.</p>
+          <div class="code-row"><code>DATETIME_FORMAT('2024-01-01', '%d/%m/%Y') → "01/01/2024"</code><button class="copy" data-copy="DATETIME_FORMAT('2024-01-01', '%d/%m/%Y')" aria-label="Copier">⧉</button></div>
+          <table class="mini">
+            <thead><tr><th>Code</th><th>Exemple</th></tr></thead>
+            <tbody>
+              <tr><td><code>%d</code></td><td>jour 01-31</td></tr>
+              <tr><td><code>%m</code></td><td>mois 01-12</td></tr>
+              <tr><td><code>%Y</code></td><td>année 2024</td></tr>
+              <tr><td><code>%H:%M</code></td><td>heure:minute</td></tr>
+              <tr><td><code>%A</code></td><td>jour semaine</td></tr>
+            </tbody>
+          </table>
+          <ul>
+            <li><code>DATETIME_FORMAT({Date}, '%B %Y')</code> → « mars 2024 »</li>
+            <li><code>DATETIME_FORMAT({Date}, '%d/%m/%Y %H:%M')</code></li>
+          </ul>
+        </article>
+
+        <article class="func" data-name="DATEADD">
+          <h3><code>DATEADD(date, quantité, unité)</code></h3>
+          <div class="code-row"><code>DATEADD('2024-01-01', 5, 'days') → "2024-01-06"</code><button class="copy" data-copy="DATEADD('2024-01-01', 5, 'days')" aria-label="Copier">⧉</button></div>
+          <ul>
+            <li><code>DATEADD({Début}, 2, 'months')</code></li>
+            <li><code>DATEADD({Début}, -1, 'years')</code></li>
+            <li>Unités : <code>days, weeks, months, years, hours, minutes, seconds</code>.</li>
+          </ul>
+        </article>
+
+        <article class="func" data-name="TODAY NOW">
+          <h3><code>TODAY()</code> <code>NOW()</code></h3>
+          <ul>
+            <li><code>TODAY() → "2024-03-14"</code> (date locale).</li>
+            <li><code>NOW() → "2024-03-14T10:30:00+00:00"</code> (UTC RFC3339).</li>
+            <li><code>DATETIME_DIFF({Échéance}, TODAY(), 'days')</code> — jours restants.</li>
+          </ul>
+        </article>
+
+        <article class="func" data-name="CREATED_TIME">
+          <h3><code>CREATED_TIME()</code> <code>LAST_MODIFIED_TIME()</code></h3>
+          <p>Vaut la date de création / dernière modif de la ligne si disponible, sinon vide.</p>
+        </article>
+      </section>
+
+      <section id="tableaux" class="card func-group" data-group="tableaux">
+        <h2>10. Fonctions — Tableaux (champs Lien)</h2>
+        <p>Un champ Lien renvoie un tableau de valeurs (ex: plusieurs produits liés). Ces 3 fonctions le manipulent.</p>
+
+        <article class="func" data-name="ARRAYJOIN">
+          <h3><code>ARRAYJOIN(tableau, séparateur)</code></h3>
+          <div class="code-row"><code>ARRAYJOIN({Produits}, ", ")</code><button class="copy" data-copy='ARRAYJOIN({Produits}, ", ")' aria-label="Copier">⧉</button></div>
+          <p>Sans séparateur : <code>", "</code>. <code>ARRAYJOIN(["a","b","c"]) → "a, b, c"</code> ; <code>ARRAYJOIN(["a","b"], "|") → "a|b"</code>.</p>
+        </article>
+
+        <article class="func" data-name="ARRAYUNIQUE">
+          <h3><code>ARRAYUNIQUE(tableau)</code></h3>
+          <div class="code-row"><code>ARRAYUNIQUE(["x","x","y"]) → ["x","y"]</code><button class="copy" data-copy='ARRAYUNIQUE(["x","x","y"])' aria-label="Copier">⧉</button></div>
+        </article>
+
+        <article class="func" data-name="ARRAYCOMPACT">
+          <h3><code>ARRAYCOMPACT(tableau)</code></h3>
+          <p>Retire <code>null</code> et <code>""</code>. Utile avant <code>SUM</code> ou <code>ARRAYJOIN</code>.</p>
+          <div class="code-row"><code>ARRAYCOMPACT(["a", "", null, "b"]) → ["a","b"]</code><button class="copy" data-copy='ARRAYCOMPACT(["a", "", null, "b"])' aria-label="Copier">⧉</button></div>
+        </article>
+
+        <div class="callout">
+          <strong>Recette Rollup maison :</strong> <code>SUM({Montants liés})</code> marche déjà (SUM aplatit les tableaux). Pour une moyenne des montants liés : <code>AVERAGE({Montants liés})</code>. Pour compter sans Rollup : <code>LEN(ARRAYJOIN({Liens}, ","))</code> → 0 si vide.
+        </div>
+      </section>
+
+      <section id="exemples" class="card">
+        <h2>11. 12 exemples complets — copie-colle</h2>
+
+        <article class="example">
+          <h3>1. Nom complet</h3>
+          <p>Tables : <code>{Prénom}</code>, <code>{Nom}</code></p>
+          <div class="code-row"><code>CONCATENATE({Prénom}, " ", UPPER({Nom}))</code><button class="copy" data-copy='CONCATENATE({Prénom}, " ", UPPER({Nom}))' aria-label="Copier">⧉</button></div>
+          <p class="result">Alice + Dupont → <code>Alice DUPONT</code></p>
+        </article>
+
+        <article class="example">
+          <h3>2. Remise conditionnelle</h3>
+          <div class="code-row"><code>IF({Quantité} &gt;= 10, {Prix} * 0.9, {Prix})</code><button class="copy" data-copy='IF({Quantité} >= 10, {Prix} * 0.9, {Prix})' aria-label="Copier">⧉</button></div>
+          <p class="result">10+ unités → -10 %</p>
+        </article>
+
+        <article class="example">
+          <h3>3. Statut couleur (SWITCH)</h3>
+          <div class="code-row"><code>SWITCH({Statut}, "Payé", "✅ Payé", "En retard", "⚠ Retard", "Brouillon", "…", "❓")</code><button class="copy" data-copy='SWITCH({Statut}, "Payé", "✅ Payé", "En retard", "⚠ Retard", "Brouillon", "…", "❓")' aria-label="Copier">⧉</button></div>
+        </article>
+
+        <article class="example">
+          <h3>4. Âge / majorité</h3>
+          <div class="code-row"><code>IF(DATETIME_DIFF(TODAY(), {Naissance}, 'years') &gt;= 18, "Majeur", "Mineur")</code><button class="copy" data-copy="IF(DATETIME_DIFF(TODAY(), {Naissance}, 'years') >= 18, &quot;Majeur&quot;, &quot;Mineur&quot;)" aria-label="Copier">⧉</button></div>
+        </article>
+
+        <article class="example">
+          <h3>5. Retard en jours</h3>
+          <div class="code-row"><code>IF({Échéance} = "", "", DATETIME_DIFF(TODAY(), {Échéance}, 'days') &amp; " j de retard")</code><button class="copy" data-copy='IF({Échéance} = "", "", DATETIME_DIFF(TODAY(), {Échéance}, "days") & " j de retard")' aria-label="Copier">⧉</button></div>
+          <p class="result">Vide → vide, sinon « 3 j de retard »</p>
+        </article>
+
+        <article class="example">
+          <h3>6. Échéance + 30 jours</h3>
+          <div class="code-row"><code>DATEADD({Début}, 30, 'days')</code><button class="copy" data-copy="DATEADD({Début}, 30, 'days')" aria-label="Copier">⧉</button></div>
+        </article>
+
+        <article class="example">
+          <h3>7. Référence normalisée</h3>
+          <div class="code-row"><code>UPPER(TRIM({Réf})) &amp; "-" &amp; RIGHT("0000" &amp; {Num}, 4)</code><button class="copy" data-copy='UPPER(TRIM({Réf})) & "-" & RIGHT("0000" & {Num}, 4)' aria-label="Copier">⧉</button></div>
+          <p class="result"><code>" ab-12 " + 7 → "AB-12-0007"</code></p>
+        </article>
+
+        <article class="example">
+          <h3>8. Email valide ?</h3>
+          <div class="code-row"><code>IF(REGEX_MATCH({Mail}, "[^@]+@[^@]+\\.[^@]+"), "OK", "→ corriger")</code><button class="copy" data-copy='IF(REGEX_MATCH({Mail}, "[^@]+@[^@]+\\.[^@]+"), "OK", "→ corriger")' aria-label="Copier">⧉</button></div>
+        </article>
+
+        <article class="example">
+          <h3>9. Extraire le code postal</h3>
+          <div class="code-row"><code>REGEX_EXTRACT({Adresse}, "([0-9]{5})")</code><button class="copy" data-copy='REGEX_EXTRACT({Adresse}, "([0-9]{5})")' aria-label="Copier">⧉</button></div>
+          <p class="result">"12 rue Paris 75001" → "75001"</p>
+        </article>
+
+        <article class="example">
+          <h3>10. Panier — total ligne</h3>
+          <div class="code-row"><code>ROUND(({Prix} - IF({Remise} = "", 0, {Remise})) * {Qté} * 1.20, 2)</code><button class="copy" data-copy='ROUND(({Prix} - IF({Remise} = "", 0, {Remise})) * {Qté} * 1.20, 2)' aria-label="Copier">⧉</button></div>
+        </article>
+
+        <article class="example">
+          <h3>11. Liste de produits liés</h3>
+          <div class="code-row"><code>ARRAYJOIN(ARRAYUNIQUE({Produits}), " • ")</code><button class="copy" data-copy='ARRAYJOIN(ARRAYUNIQUE({Produits}), " • ")' aria-label="Copier">⧉</button></div>
+        </article>
+
+        <article class="example">
+          <h3>12. Initiales</h3>
+          <div class="code-row"><code>UPPER(LEFT({Prénom},1) &amp; LEFT({Nom},1))</code><button class="copy" data-copy='UPPER(LEFT({Prénom},1) & LEFT({Nom},1))' aria-label="Copier">⧉</button></div>
+          <p class="result">Alice Dupont → AD</p>
+        </article>
+      </section>
+
+      <section id="erreurs" class="card">
+        <h2>12. Erreurs & debug</h2>
+        <table>
+          <thead><tr><th>Message</th><th>Cause</th><th>Fix</th></tr></thead>
+          <tbody>
+            <tr><td><code>#ERREUR: fonction inconnue 'FOO'</code></td><td>Faute de frappe</td><td>Vérifie la liste §14, majuscules indifférentes.</td></tr>
+            <tr><td><code>#ERREUR: pattern regex invalide</code></td><td><code>REGEX_MATCH("[")</code></td><td>Ferme le crochet : <code>"[0-9]+"</code>.</td></tr>
+            <tr><td><code>#ERREUR: IF nécessite des arguments</code></td><td><code>IF()</code> vide</td><td><code>IF(condition, a, b)</code> minimum 2.</td></tr>
+            <tr><td><code>""</code> (vide) au lieu d'une date</td><td>Format invalide <code>"%"</code></td><td><code>DATETIME_FORMAT({D}, "%d/%m/%Y")</code></td></tr>
+            <tr><td><code>null</code> / vide</td><td>Division par 0, champ vide, SWITCH sans défaut</td><td><code>IF({X}=0, "", 10/{X})</code></td></tr>
+          </tbody>
+        </table>
+        <ul>
+          <li><strong>Teste par morceaux</strong> : copie juste <code>{Montant} &gt; 100</code> pour voir si ça vaut <code>true</code>.</li>
+          <li><strong>Parenthèses</strong> : compte-les. L'éditeur colore les paires.</li>
+          <li><strong>Guillemets</strong> : <code>"Payé"</code> pas <code>Payé</code>.</li>
+        </ul>
+      </section>
+
+      <section id="bonnes-pratiques" class="card">
+        <h2>13. Bonnes pratiques</h2>
+        <ul>
+          <li><strong>Nomme bien</strong> : <code>{Prix HT}</code> > <code>{Colonne 3}</code>. La formule reste lisible.</li>
+          <li><strong>Gère le vide</strong> : <code>IF({X} = "", 0, {X})</code> avant un calcul.</li>
+          <li><strong>Décompose</strong> : plutôt qu'une formule de 5 lignes, crée 2 champs formules intermédiaires.</li>
+          <li><strong>Commente mentalement</strong> : <code>IF(... /* remise */)</code> n'existe pas, mais garde une note à côté du champ.</li>
+          <li><strong>Teste les bords</strong> : 0, vide, texte avec accent, date 29/02.</li>
+        </ul>
+      </section>
+
+      <section id="reference" class="card">
+        <h2>14. Référence rapide</h2>
+        <p class="hint">Clique le ⧉ pour copier. Recherche en haut filtre cette table.</p>
+        <table id="ref-table">
+          <thead><tr><th>Fonction</th><th>Signature</th><th>Exemple</th></tr></thead>
+          <tbody>
+            <tr data-name="IF"><td><code>IF</code></td><td><code>IF(cond, a, b)</code></td><td><code>IF({Age}&gt;18,"M","m")</code></td></tr>
+            <tr data-name="SWITCH"><td><code>SWITCH</code></td><td><code>SWITCH(v,c1,r1,…,défaut)</code></td><td><code>SWITCH({S},"A","ok","ko")</code></td></tr>
+            <tr data-name="AND"><td><code>AND</code></td><td><code>AND(v1,…)</code></td><td><code>AND({A},{B}&gt;0)</code></td></tr>
+            <tr data-name="OR"><td><code>OR</code></td><td><code>OR(v1,…)</code></td><td><code>OR({S}="Payé",{S}="Offert")</code></td></tr>
+            <tr data-name="NOT"><td><code>NOT</code></td><td><code>NOT(v)</code></td><td><code>NOT({Archivé})</code></td></tr>
+            <tr data-name="CONCATENATE"><td><code>CONCATENATE</code></td><td><code>CONCATENATE(...)</code></td><td><code>CONCATENATE({P}," ",{N})</code></td></tr>
+            <tr data-name="LEN"><td><code>LEN</code></td><td><code>LEN(t)</code></td><td><code>LEN("hi")→2</code></td></tr>
+            <tr data-name="LOWER"><td><code>LOWER</code></td><td><code>LOWER(t)</code></td><td><code>LOWER("Hi")→"hi"</code></td></tr>
+            <tr data-name="UPPER"><td><code>UPPER</code></td><td><code>UPPER(t)</code></td><td><code>UPPER("hi")→"HI"</code></td></tr>
+            <tr data-name="TRIM"><td><code>TRIM</code></td><td><code>TRIM(t)</code></td><td><code>TRIM(" a ")→"a"</code></td></tr>
+            <tr data-name="LEFT"><td><code>LEFT</code></td><td><code>LEFT(t,n)</code></td><td><code>LEFT("hello",2)→"he"</code></td></tr>
+            <tr data-name="RIGHT"><td><code>RIGHT</code></td><td><code>RIGHT(t,n)</code></td><td><code>RIGHT("hello",2)→"lo"</code></td></tr>
+            <tr data-name="MID"><td><code>MID</code></td><td><code>MID(t,départ,long)</code></td><td><code>MID("hello",2,3)→"ell"</code></td></tr>
+            <tr data-name="REGEX_MATCH"><td><code>REGEX_MATCH</code></td><td><code>REGEX_MATCH(t,motif)</code></td><td><code>REGEX_MATCH("a1","[0-9]")</code></td></tr>
+            <tr data-name="REGEX_EXTRACT"><td><code>REGEX_EXTRACT</code></td><td><code>REGEX_EXTRACT(t,motif)</code></td><td><code>REGEX_EXTRACT("a1","([0-9])")</code></td></tr>
+            <tr data-name="SUM"><td><code>SUM</code></td><td><code>SUM(...)</code></td><td><code>SUM(1,2,{X})</code></td></tr>
+            <tr data-name="AVERAGE"><td><code>AVERAGE</code></td><td><code>AVERAGE(...)</code></td><td><code>AVERAGE(1,2,3)→2</code></td></tr>
+            <tr data-name="MIN"><td><code>MIN</code></td><td><code>MIN(...)</code></td><td><code>MIN(3,1,2)→1</code></td></tr>
+            <tr data-name="MAX"><td><code>MAX</code></td><td><code>MAX(...)</code></td><td><code>MAX(3,1,2)→3</code></td></tr>
+            <tr data-name="ROUND"><td><code>ROUND</code></td><td><code>ROUND(n,déc)</code></td><td><code>ROUND(2.567,2)→2.57</code></td></tr>
+            <tr data-name="ABS"><td><code>ABS</code></td><td><code>ABS(n)</code></td><td><code>ABS(-5)→5</code></td></tr>
+            <tr data-name="MOD"><td><code>MOD</code></td><td><code>MOD(a,b)</code></td><td><code>MOD(10,3)→1</code></td></tr>
+            <tr data-name="DATETIME_DIFF"><td><code>DATETIME_DIFF</code></td><td><code>DATETIME_DIFF(d1,d2,unité)</code></td><td><code>…,'days'→9</code></td></tr>
+            <tr data-name="DATETIME_FORMAT"><td><code>DATETIME_FORMAT</code></td><td><code>DATETIME_FORMAT(d,fmt)</code></td><td><code>'%d/%m/%Y'</code></td></tr>
+            <tr data-name="DATEADD"><td><code>DATEADD</code></td><td><code>DATEADD(d,qté,unité)</code></td><td><code>DATEADD('2024-01-01',5,'days')</code></td></tr>
+            <tr data-name="TODAY"><td><code>TODAY</code></td><td><code>TODAY()</code></td><td><code>"2024-03-14"</code></td></tr>
+            <tr data-name="NOW"><td><code>NOW</code></td><td><code>NOW()</code></td><td><code>RFC3339</code></td></tr>
+            <tr data-name="ARRAYJOIN"><td><code>ARRAYJOIN</code></td><td><code>ARRAYJOIN(t,sép)</code></td><td><code>ARRAYJOIN(["a","b"],",")</code></td></tr>
+            <tr data-name="ARRAYUNIQUE"><td><code>ARRAYUNIQUE</code></td><td><code>ARRAYUNIQUE(t)</code></td><td><code>["x","x","y"]→["x","y"]</code></td></tr>
+            <tr data-name="ARRAYCOMPACT"><td><code>ARRAYCOMPACT</code></td><td><code>ARRAYCOMPACT(t)</code></td><td><code>["a","",null]→["a"]</code></td></tr>
+          </tbody>
+        </table>
+        <p class="hint">Opérateurs : <code>+ - * / % &amp; = != &lt; &gt; &lt;= &gt;=</code> — priorité maths avant comparaisons.</p>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Sebtable — moteur de formules Rust • <code>{Champ}</code> + <code>"texte"</code> + <code>IF(SWITCH(AND(…)))</code> • <a href="#">Haut de page</a></p>
+    </div>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
