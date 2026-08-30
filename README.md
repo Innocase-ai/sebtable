@@ -36,11 +36,27 @@ Construit avec **Tauri v2** (Rust + SQLite) et **React 18 + TypeScript** (Vite).
 - Rust stable (toolchain MSVC sous Windows) + VS Build Tools
 - (Tauri) les dépendances natives de la plateforme — cf. [Tauri prerequisites](https://tauri.app/start/prerequisites/)
 
-## Développement
+## Lancer Sebtable
+
+### 1. En 1 clic (Windows, recommandé pour tester)
+
+Double-clic sur **`lancer-sebtable.bat`** à la racine du projet :
+- si Rust est installé → lance l'app complète (`pnpm tauri dev` : fenêtre Tauri + SQLite)
+- sinon → fallback web seul (`pnpm dev` sur http://localhost:1420)
+
+Variantes : `lancer-sebtable.ps1` (PowerShell) et `lancer-sebtable-debug.bat` (logs détaillés).
+
+### 2. Mode développement (contributeurs)
 
 ```bash
 pnpm install        # installer les dépendances front
-pnpm tauri dev      # lancer l'app (compile Rust + sert le frontend)
+pnpm tauri dev      # compile Rust + sert le frontend (HMR)
+```
+
+### 3. Binaire d'installation
+
+```bash
+pnpm tauri build    # produit l'installateur Windows (.msi/.exe) dans src-tauri/target/release/bundle/
 ```
 
 ## Vérification
