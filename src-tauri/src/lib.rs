@@ -1,11 +1,11 @@
 mod ai;
 mod commands;
-mod db;
+pub mod db;
 mod error;
 mod formula;
 mod security;
 mod utils;
-mod workspace;
+pub mod workspace;
 
 #[cfg(test)]
 mod tests;
